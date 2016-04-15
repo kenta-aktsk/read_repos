@@ -6,11 +6,13 @@ defmodule ReadRepos do
       @master unquote(master)
       @otp_app unquote(opts)[:otp_app] || Module.get_attribute(@master, :otp_app)
       @regexp unquote(opts)[:regexp] || Regex.compile!(".*#{unquote(read_repo)}[0-9]+", "i")
+      @page_size unquote(opts)[:page_size] || 10
       Module.register_attribute __MODULE__, :slaves, accumulate: true
       @before_compile unquote(__MODULE__)
 
       contents = quote location: :keep do
         use Ecto.Repo, otp_app: unquote(@otp_app)
+        use Scrivener, page_size: unquote(@page_size)
       end
 
       env = Application.get_all_env(@otp_app)
