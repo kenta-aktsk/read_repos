@@ -33,10 +33,10 @@ defmodule ReadRepos.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :scrivener]]
   end
 
   defp deps do
-    []
+    [{:scrivener, "~> 1.0"}]
   end
 end

@@ -82,6 +82,32 @@ MyApp.Repo.slaves
 MyApp.Entry |> MyApp.ReadRepo0.slave.all
 ```
 
+# Pagination
+
+ReadRepos use [Scrivener](https://github.com/drewolson/scrivener), so you can use `paginate` function like below:
+
+```elixir
+# controller
+def index(conn, params) do
+  page = User |> from |> Repo.slave.paginate(params)
+  render(conn, "index.html", users: page.entries, page: page)
+end
+
+# template
+<%= pagination_links @conn, @page %>
+```
+
+You can change `page_size` (default 10) like below:
+
+```elixir
+# lib/my_app/repo.ex
+defmodule MyApp.Repo do
+  use Ecto.Repo, otp_app: :my_app
+  use ReadRepos, page_size: 5
+end
+```
+
+
 ## Specify ReadRepo module name
 
 If you want to use ReadRepo module name other than `ReadRepo`, e.g. `Slave`, you can specify it by regex like below:
