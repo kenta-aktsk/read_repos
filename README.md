@@ -1,6 +1,6 @@
 # ReadRepos
 
-ReadRepos is an Simple master-slave library for Ecto.
+ReadRepos is an Simple primary-replica library for Ecto.
 
 ## Installation
 
@@ -22,7 +22,7 @@ end
 
 ## Usage
 
-Add slave database settings to your `#{Mix.env}.exs` files like below:
+Add replica database settings to your `#{Mix.env}.exs` files like below:
 
 ```elixir
 # config/dev.exs
@@ -51,7 +51,7 @@ defmodule MyApp do
       ...
     ]
     # add
-    children = children ++ Enum.map(MyApp.Repo.slaves, &supervisor(&1, []))
+    children = children ++ Enum.map(MyApp.Repo.replicas, &supervisor(&1, []))
     ...
   end
 end
@@ -68,18 +68,18 @@ defmodule MyApp.Repo do
 end
 ```
 
-Then slave databases can be accessed via `slave` function like below:
+Then replica databases can be accessed via `replica` function like below:
 
 ```elixir
-MyApp.Entry |> MyApp.Repo.slave.all
-MyApp.Entry |> MyApp.Repo.slave.get(1)
+MyApp.Entry |> MyApp.Repo.replica.all
+MyApp.Entry |> MyApp.Repo.replica.get(1)
 
-# you can get all slave repos like below:
-MyApp.Repo.slaves
+# you can get all replica repos like below:
+MyApp.Repo.replicas
 # => [MyApp.ReadRepo0, MyApp.ReadRepo1]
 
-# also you can access each slave repos directly like below:
-MyApp.Entry |> MyApp.ReadRepo0.slave.all
+# also you can access each replica repos directly like below:
+MyApp.Entry |> MyApp.ReadRepo0.replica.all
 ```
 
 # Pagination
@@ -89,7 +89,7 @@ ReadRepos use [Scrivener](https://github.com/drewolson/scrivener), so you can us
 ```elixir
 # controller
 def index(conn, params) do
-  page = User |> from |> Repo.slave.paginate(params)
+  page = User |> from |> Repo.replica.paginate(params)
   render(conn, "index.html", users: page.entries, page: page)
 end
 
@@ -110,26 +110,26 @@ end
 
 ## Specify ReadRepo module name
 
-If you want to use ReadRepo module name other than `ReadRepo`, e.g. `Slave`, you can specify it by regex like below:
+If you want to use ReadRepo module name other than `ReadRepo`, e.g. `Replica`, you can specify it by regex like below:
 
 ```elixir
 # config/dev.exs
-config :my_app, MyApp.Slave0,
+config :my_app, MyApp.Replica0,
   ...
 
-config :my_app, MyApp.Slave1,
+config :my_app, MyApp.Replica1,
   ...
 
 # lib/my_app/repo.ex
 defmodule MyApp.Repo do
   use Ecto.Repo, otp_app: :my_app
   # add
-  use ReadRepos, regexp: ~r/.*MyApp.Slave[0-9]+/
+  use ReadRepos, regexp: ~r/.*MyApp.Replica[0-9]+/
 end
 ```
 
 ## Remarks
 
-* Slave databases are selected randomly.
+* Replica databases are selected randomly.
 
-* If there are no slave database settings in config file, `MyApp.Repo.slave` returns master Repo automatically.
+* If there are no replica database settings in config file, `MyApp.Repo.replica` returns primary Repo automatically.
